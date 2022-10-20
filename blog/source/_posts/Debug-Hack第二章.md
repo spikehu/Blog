@@ -163,3 +163,171 @@ sysctl -p
 
 后面还有使用用户模式辅助程序自动压缩内核转储文件，以及启动整个系统的内核转储功能，利用内核转储掩码排除共享内存，这些用到再说吧。
 
+## 调试器（GDB）的基本使用方法（之一）
+
+本hack说明GDB的基本使用方法，包括断点设置、继续运行等。
+
+使用Linux下的标准调试器GDB，编译器为GCC。
+
+流程如下 ：
+
+1.带着调试选项编译、构建调试对象
+
+2.启动调试器（GDB）
+
+2-1设置断点
+
+2-2显示栈帧
+
+2-3显示值
+
+2-4继续执行
+
+### 准备
+
+通过gcc的-g选项生成调试信息
+
+~~~C
+gcc -Wall -O2 -g 源文件
+~~~
+
+如果是Makefile构建，一般要给CFLAGS中指定-g选项
+
+~~~
+CFLAGS = -wall -O2 -g 
+~~~
+
+### 启动
+
+~~~
+gdb 可执行文件名
+~~~
+
+### 设置断点
+
+break 设置，可简写为b,格式如下
+
+![image-20221020202002182](../typora-user-images/image-20221020202002182.png)
+
+![image-20221020202035580](../typora-user-images/image-20221020202035580.png)
+
+不指定断点位置，就在下一行代码设置断点。
+
+设置好的断点可以通过info break确认
+
+![image-20221020202204216](../typora-user-images/image-20221020202204216.png)
+
+### 运行
+
+用run命令开始运行，不加参数只执行run，就会执行到断点位置后暂停，可以简写为r。
+
+![image-20221020202412031](../typora-user-images/image-20221020202412031.png)
+
+###  显示栈帧
+
+breaktrace：遇到断点暂停执行时显示栈帧。可以简写为bt。别名还有where 和info stack(简写为info s)。
+
+~~~
+bt 显示所有栈帧
+bt N 显示开头N个栈帧
+bt -N 只显示最后N个栈帧
+
+
+下面是不仅显示backtrace，还要显示局部变量。N与前面几个意思相同。
+bt full 
+bt full N
+bt full -N
+~~~
+
+### 显示变量
+
+print显示变量，可以简写为p
+
+![image-20221020203804522](../typora-user-images/image-20221020203804522.png)
+
+### 显示寄存器
+
+info registers 可显示寄存器，简写为info reg
+
+![image-20221020203932300](../typora-user-images/image-20221020203932300.png)
+
+![image-20221020204025055](../typora-user-images/image-20221020204025055.png)
+
+程序指针可以写为$pc或者$eip
+
+![image-20221020204438756](../typora-user-images/image-20221020204438756.png)
+
+用x命令可以显示内存的内容。
+
+![image-20221020204523081](../typora-user-images/image-20221020204523081.png)
+
+使用x命令时，格式为x/NFU ADDR,此处ADDR为希望显示的地址，N为重复次数，F为前面讲过的格式（x d u o t a c f s i）,U为表2-4所示的单位。
+
+![image-20221020204716532](../typora-user-images/image-20221020204716532.png)
+
+下面显示从pc所指地址开始的10条指令（i）
+
+![image-20221020204943041](../typora-user-images/image-20221020204943041.png)
+
+反汇编命令disassemble,简写为disas,格式
+
+1.disassemble 
+
+2.disassemble 程序计数器
+
+3.disassemble 开始地址 结束地址
+
+![image-20221020205107660](../typora-user-images/image-20221020205107660.png)
+
+### 单步执行
+
+执行源代码中一行的命令为next,如果遇到函数调用，可以使用step（简写为p）命令。
+
+如果要执行nexti和stepi命令，就是逐条执行汇编指令。
+
+### 继续运行
+
+continue,简写为c
+
+continue 次数
+
+指定次数可以忽略断点
+
+### 监视点
+
+找到变量在何处被改变，使用watch命令
+
+~~~
+watch <表达式> 发生变化时暂停
+awatch <表达式> 被访问、改变时暂停运行
+rwatch <表达式> 被访问时候暂停运行
+
+~~~
+
+### 删除断点和监视点
+
+用delete命令删除断点和监视点
+
+~~~
+delete <编号> 删除<编号>指示的断点和监视点。
+~~~
+
+### 改变变量的值
+
+~~~
+set variable <变量> = <表达式>
+~~~
+
+### 生成内核转储文件
+
+~~~
+generate-core-file
+~~~
+
+还有gcore命令可以从命令行直接生成内核转储文件
+
+~~~
+gcore 'pidof emacs'
+~~~
+
+该命令无须停止就可以获得内核转储文件。

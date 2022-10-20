@@ -378,7 +378,7 @@ walk(pagetable_t pagetable, uint64 va, int alloc)
 }
 ~~~
 
-看看测试函数pgtbltest中的测试
+测试函数pgtbltest中的pgaccess_test测试
 
 ~~~c
 void
@@ -403,3 +403,95 @@ pgaccess_test()
 }
 ~~~
 
+### 完成pgaccess
+
+首先在在riscv.h中定义PTE_A，这个是参考了https://www.bilibili.com/video/BV1zL4y1t7mG/?spm_id_from=333.788&vd_source=3beb6fdc520324dc1427808056eb9e4e得到的。
+
+在vm.c中添加函数pgaccess_walk，不要忘了在defs.h中声明，这是得到虚拟地址隐射的物理地址。
+
+~~~c
+pte_t* 
+pgaccess_walk(pagetable_t pagetable,uint64 va)
+{
+  if(va >= MAXVA)
+    panic("walk");
+
+  for(int level = 2; level > 0; level--) {
+    pte_t *pte = &pagetable[PX(level, va)];
+    if(*pte & PTE_V) {
+      pagetable = (pagetable_t)PTE2PA(*pte);
+    }
+  }
+  return &pagetable[PX(0, va)];
+}
+~~~
+
+最后完成
+
+~~~c
+int
+sys_pgaccess(void)
+{
+  // lab pgtbl: your code here.
+  //先读取3个参数
+  //第一个参数： 第一个需要检查的用户页面开始的虚拟地址 First, it takes the starting virtual address of the first user page to check.
+  //第二个参数：需要检测的页的数量 Second, it takes the number of pages to check.
+  //一个buffer去存储结果 是一个掩码--bitmask Finally, it takes a user address to a buffer to store the results into a bitmask 
+  //(a datastructure that uses one bit per page and where the first page corresponds to the least significant bit). 
+  uint64 pagetableAddr;
+  int checkNumber;
+  uint64 buffer; 
+  int ret = 0x0000;
+
+  if(argaddr(0,&pagetableAddr)<0)
+  {
+    return -1;
+  }
+  if(argint(1,&checkNumber)<0)
+  {
+     return -1;
+  }
+  if(argaddr(2,&buffer)<0)
+  {
+    return -1;
+  }
+  if(checkNumber > 32 )return -1;
+
+
+  //获得该进程的页表
+  //将结果写入用户空间
+  struct proc *p = myproc();
+  for(int i = checkNumber-1 ;i >=0;i--)
+  {
+    pte_t* pte =  pgaccess_walk(p->pagetable,pagetableAddr+i*PGSIZE);
+    ret = (ret<<1);
+    if(*pte & PTE_A)
+    {
+        ret = ret|1;
+        //将PTE_A重置为0
+        *pte =(*pte)^PTE_A;
+    }
+  }
+  copyout(p->pagetable, buffer,(char*)&ret,4);
+  return 0;
+}
+~~~
+
+
+
+得到结果
+
+~~~
+$ pgtbltest
+ugetpid_test starting
+ugetpid_test: OK
+pgaccess_test starting
+pgaccess_test: OK
+pgtbltest: all tests succeeded
+~~~
+
+## Optional challenge exercises---有时间再回头来做吧
+
+- Use super-pages to reduce the number of PTEs in page tables.
+- Unmap the first page of a user process so that dereferencing a null pointer will result in a fault. You will have to start the user text segment at, for example, 4096, instead of 0.
+- Add a system call that reports dirty pages (modified pages) using `PTE_D`.
