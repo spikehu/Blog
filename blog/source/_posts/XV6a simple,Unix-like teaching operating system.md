@@ -15,7 +15,7 @@ tags:
 
 ## chapter 1 Operating System interfaces
 
-![image-20220930100403335](typora-user-images\image-20220930100403335.png)
+![image-20221012223027721](../typora-user-images/image-20221012223027721.png)
 
 内核：一个为程序提供服务的特殊程序。（**kernel**: a special program that provides services to running programs）
 <!--more-->
@@ -26,7 +26,7 @@ tags:
 
 下图是XV6可以调用的所有系统方法。
 
-![image-20220930102440246](typora-user-images\image-20220930102440246.png)
+![image-20221012223052328](../typora-user-images/image-20221012223052328.png)
 
 ### 1.1 Processes and memory
 

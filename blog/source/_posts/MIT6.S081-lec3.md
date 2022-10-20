@@ -9,7 +9,7 @@ summary: MIT-OS lec3课程笔记
 categories: MIT-OS
 tags:
   - MIT-OS
-  - LEC-3
+  - LEC
 ---
 # 6.S08-lecture 3 -OS organization and System Call
 

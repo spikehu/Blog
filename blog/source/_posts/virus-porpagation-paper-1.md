@@ -32,11 +32,11 @@ SIR或SEIR模型可以进一步分类为概率模型和确定性模型。在确�
 
 该模型允许可视化网络中病毒传播的详细行为,是一个主要关注详细行为和个体特点的微型模拟模型。
 
-![image-20221006224329676](typora-user-images\image-20221006224329676.png)
+![image-20221006224329676](../typora-user-images\image-20221006224329676.png)
 
 将AB模型用与模拟SEIR模型的传播，每个agent一天中可以有3个活动：home ,work, transprotation.基于这些活动，节点可以表示agent, 边表示2个节点参与了一样的活动。
 
-![image-20221006224729196](typora-user-images\image-20221006224729196.png)
+![image-20221006224729196](../typora-user-images\image-20221006224729196.png)
 
 A susceptible agent can be infected if it comes in contact with both exposed and infected agents. 
 
@@ -56,11 +56,11 @@ heterogeneity factor ：两个agent之间连接的强度，表示 被感染的�
 
 Eulers’ method can be used to estimate both transmission rate (b) and contact rate (k) for the GP model through the SIR equations listed below [9]: 
 
-![image-20221007092853792](typora-user-images\image-20221007092853792.png)
+![image-20221007092853792](../typora-user-images\image-20221007092853792.png)
 
 The AB, SB, and GP models can be presented as an SEIR-based FSM, as shown in Fig. 2. 
 
-<img src="typora-user-images\image-20221007093046909.png" alt="image-20221007093046909" style="zoom: 67%;" />
+<img src="../typora-user-images\image-20221007093046909.png" alt="image-20221007093046909" style="zoom: 67%;" />
 
 ## Effect of NetWork Topology On The Dynamics of Epidemic
 
@@ -78,17 +78,17 @@ High clustered networks:
 
 Therefore, for high clustered networks, the die out rate of the epidemic is slightly slower than that of a fully connected or random network, as can be seen from Table 2.The major contributor of the diff erence in metrics is the high or low clustering in networks. 
 
-<img src="typora-user-images\image-20221007100457137.png" alt="image-20221007100457137" style="zoom:80%;" />
+<img src="../typora-user-images\image-20221007100457137.png" alt="image-20221007100457137" style="zoom:80%;" />
 
 ## Developed SEIR AB Model
 
 SEIR-FSM模型是基于高斯混合模型发展来的。
 
-transmission probability equation of an individual agent :![image-20221007102804213](typora-user-images\image-20221007102804213.png)
+transmission probability equation of an individual agent :![image-20221007102804213](../typora-user-images\image-20221007102804213.png)
 
 M是活动的数量，X是D维的包含agent 人口统计和活动特征的向量。Wi是活动的权重，可由Table 2明确，u是病毒传播率β。
 
-![image-20221007103259974](typora-user-images\image-20221007103259974.png)
+![image-20221007103259974](../typora-user-images\image-20221007103259974.png)
 
 β accounts for the heterogeneity factor (δi) based on the diff erent activities of the social network. 
 
@@ -104,7 +104,7 @@ Scenario 1（Fig 3a and 3b）：I0 = 600 and estimated disease parameters b and 
 
 Scenario 2（Fig 3c and cd）: I0 = 153 and estimated disease parameters b =0.848 ,k  = 0.099
 
-<img src="typora-user-images\image-20221007152231994.png" alt="image-20221007152231994" style="zoom:80%;" />
+<img src="../typora-user-images\image-20221007152231994.png" alt="image-20221007152231994" style="zoom:80%;" />
 
 场景2的密集程度是小于场景1的，场景1更早的到达峰值，持续时间是10天，场景二持续了13天。由于场景二的estimated disease parameters rate b 和 k要小一些，所以得出结论：These results conclude that both the size and the location of the initial infection play an important role in terms of the dynamics of disease spread. 
 
@@ -112,7 +112,7 @@ Scenario 2（Fig 3c and cd）: I0 = 153 and estimated disease parameters b =0.84
 
 MANET具有如下特点：一点范围内的设备可以通信，不同范围的设备也可以通过中间节点进行通信，设备可以随时加入或者退出网络，这就导致了MANNET的网络结构是动态变化的。
 
-![image-20221007153617687](typora-user-images\image-20221007153617687.png)
+![image-20221007153617687](../typora-user-images\image-20221007153617687.png)
 
 上面的实验结果可以扩展应用到MANET中的病毒传播。
 
@@ -135,6 +135,6 @@ A high level of authenticity denotes that an agent while trying to connect to an
 
 Access complexity :与网络的异构系数δ对应。
 
-![image-20221007165036091](typora-user-images\image-20221007165036091.png)
+![image-20221007165036091](../typora-user-images\image-20221007165036091.png)
 
 where AV is the access vector, AC is the access complexity, and Au is the authentication level. 

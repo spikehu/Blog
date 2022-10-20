@@ -21,7 +21,7 @@ tags:
 在完成程序之后，需要在Makefile中添加配置，这下面添加的是copy.c
 <!--more-->
 
-![image-20220930222707955](typora-user-images\image-20220930222707955.png)
+![image-20220930222707955](../typora-user-images\image-20220930222707955.png)
 
 ## 2.如何进行测试
 
@@ -70,7 +70,7 @@ int main(int argc , char* argv[])
 
 进行测试
 
-![image-20220930223202780](typora-user-images\image-20220930223202780.png)
+![image-20220930223202780](../typora-user-images\image-20220930223202780.png)
 
 ### lab-1.2 pingpong
 
@@ -176,7 +176,7 @@ Write a concurrent version of prime sieve using pipes. This idea is due to Doug 
 
 需要掌握的模型如下：
 
-![image-20221004142714644](typora-user-images\image-20221004142714644.png)
+![image-20221004142714644](../typora-user-images\image-20221004142714644.png)
 
 
 
@@ -275,7 +275,7 @@ int main(int argc , char* argv[]) {
 
 测试结果如下：
 
-![image-20221005095836273](typora-user-images\image-20221005095836273.png)
+![image-20221005095836273](../typora-user-images\image-20221005095836273.png)
 
 ### lab-1.4 find
 
@@ -552,7 +552,7 @@ int main(int argc , char* argv[])
 
 
 
-![image-20221005193325550](typora-user-images\image-20221005193325550.png)
+![image-20221005193325550](../typora-user-images\image-20221005193325550.png)
 
 ### lab1.5 Xargs
 
