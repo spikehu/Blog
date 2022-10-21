@@ -331,3 +331,285 @@ gcore 'pidof emacs'
 ~~~
 
 该命令无须停止就可以获得内核转储文件。
+
+## 调试器（GDB）的基本使用方法（之二）
+
+这个部分介绍GDB的一些使用技巧
+
+## attach到守护进程
+
+调试守护进程（daemon process）等已启动进程，或是陷入死循环的进程，用attach命令
+
+格式
+
+~~~
+attach pid
+~~~
+
+查看进程ID可以用ps命令，下面以sleep为例进行调试，我用自己写的一个文件进行测试
+
+a.c
+
+~~~c
+#include<stdio.h>
+#include<unistd.h>
+int main(void)
+{
+
+    while(1)
+    {
+        sleep(1);
+        printf("sleep 100\n");
+    }
+    return 0;
+}
+~~~
+
+使用ps aux 得到进程ID
+
+~~~
+ubuntu    276238  0.0  0.0   2488   576 pts/7    S+   10:41   0:00 ./a
+~~~
+
+使用attach 276238进行调试
+
+输入sudo gdb进入gdb
+
+输入命令 attach 276238
+
+~~~shell
+(gdb) attach 276238
+Attaching to process 276238
+Reading symbols from /home/gdbLearning/a...
+Reading symbols from /lib/x86_64-linux-gnu/libc.so.6...
+Reading symbols from /usr/lib/debug/.build-id/18/78e6b475720c7c51969e69ab2d276fae6d1dee.debug...
+Reading symbols from /lib64/ld-linux-x86-64.so.2...
+Reading symbols from /usr/lib/debug/.build-id/45/87364908de169dec62ffa538170118c1c3a078.debug...
+0x00007fb31594c1b4 in __GI___clock_nanosleep (clock_id=<optimized out>, clock_id@entry=0, flags=flags@entry=0, 
+    req=req@entry=0x7fff9fd94c00, rem=rem@entry=0x7fff9fd94c00) at ../sysdeps/unix/sysv/linux/clock_nanosleep.c:78
+78      ../sysdeps/unix/sysv/linux/clock_nanosleep.c: No such file or directory.
+~~~
+
+输入bt显示栈帧
+
+~~~
+(gdb) bt
+#0  0x00007fb31594c1b4 in __GI___clock_nanosleep (clock_id=<optimized out>, clock_id@entry=0, flags=flags@entry=0, 
+    req=req@entry=0x7fff9fd94c00, rem=rem@entry=0x7fff9fd94c00) at ../sysdeps/unix/sysv/linux/clock_nanosleep.c:78
+#1  0x00007fb315951ec7 in __GI___nanosleep (requested_time=requested_time@entry=0x7fff9fd94c00, remaining=remaining@entry=0x7fff9fd94c00)
+    at nanosleep.c:27
+#2  0x00007fb315951dfe in __sleep (seconds=0) at ../sysdeps/posix/sleep.c:55
+#3  0x000056451fae117b in main () at a.c:8
+~~~
+
+**栈帧得从下往上看**，可以知道先进入了main,然后调用了sleep()函数，sleep函数调用了nanosleep ().
+
+
+
+atattch之后就可以使用普通得gdb命令了。
+
+## 条件断点
+
+仅在特定条件下中断
+
+格式
+
+- break 断点 if  条件
+
+![image-20221021105344408](../typora-user-images/image-20221021105344408.png)
+
+格式
+
+- condition 断点编号
+- condition 断点编号 条件
+
+condition命令可以给指定的断点添加或删除触发条件。
+
+- 第一个格式删除指定断点编号的触发条件
+- 第2个格式给断点添加触发条件
+
+## 反复执行
+
+格式
+
+- ignore 断点编号 次数
+
+在编号指定的断点、监视点、捕获点忽略指定的次数。continue也是一样的。
+
+
+
+格式
+
+- continue 次数
+- step 次数
+- stepi 次数
+- next 次数
+- nexti 次数
+
+
+
+格式
+
+- finish
+- until
+- until 地址
+
+
+
+finish:执行完当前函数后暂停
+
+until:执行完当前函数等代码块后暂停，如果是循环则跳出循环
+
+
+
+## 删除断点和禁用断点
+
+clear删除已定义的断点，只是禁用的话可以使用disable，重新启用的话使用enable命令。
+
+格式：
+
+clear
+
+clear 函数名
+
+clear 行号
+
+clear 文件名：行号
+
+clear 文件名：函数名
+
+delete [breakpoints]断点编号
+
+
+
+格式
+
+disable [breakpoints]
+
+disable [breakpoints] 断点编号
+
+disable  display 显示编号
+
+disable mem 内存区域
+
+![image-20221021110633501](../typora-user-images/image-20221021110633501.png)
+
+## 断点命令
+
+commands 断点编号
+
+定义在断点中断后自动执行的命令
+
+格式
+
+commands 断点编号
+
+命令
+
+...
+
+end
+
+程序在指定的断点暂停后，就会自动执行命令。下面的例子是在断点处暂停时执行p *iseq(打印iseq)
+
+这里以这段代码为例
+
+~~~c
+#include<stdio.h>
+#include<unistd.h>c
+int main(void)
+{
+    int a =10;
+    a++;
+    printf("%d",a);
+    return 0;
+}
+~~~
+
+设置断点后的命令
+
+~~~
+(gdb) commands 3 
+Type commands for breakpoint(s) 3, one per line.
+End with a line saying just "end".
+>p a
+>end
+~~~
+
+重新运行
+
+~~~
+(gdb) run
+The program being debugged has been started already.
+Start it from the beginning? (y or n) y
+Starting program: /home/gdbLearning/a ./a
+warning: Probes-based dynamic linker interface failed.
+Reverting to original interface.
+
+Breakpoint 3, main () at a.c:4
+4       {
+$2 = 0
+~~~
+
+可以和silent组合使用，暂停显示执行复杂的显示动作
+
+
+
+## 常用命令及省略形式（别名）
+
+![image-20221021112801693](../typora-user-images/image-20221021112801693.png)
+
+![image-20221021112819191](../typora-user-images/image-20221021112819191.png)
+
+## 调试器（GDB）的基本使用方法（之三）
+
+继续介绍Linux下GDB的使用技巧
+
+### 值的历史
+
+print命令显示得值会记录在值历史中。
+
+最后得值可以用$访问，如
+
+~~~、
+p $
+~~~
+
+还有show value显示值历史中得最后10个值，不过不好用，它显示的是曾经显示的所有的最后10个的值
+
+![image-20221021154847158](../typora-user-images/image-20221021154847158.png)
+
+## 变量
+
+变量以$开头，由英文字母和数字组成
+
+set $i=0
+
+## 命令历史
+
+可以将命令历史保存在文件中
+
+## 初始化文件（.gdbinit）----不懂
+
+linux环境下的初始化文件为.gdbinit。如果存在，GDB就会在启动之前将其作为命令文件运行。初始化文件和命令文件的运行顺序如下：
+
+1. $HOME/.gdbinit
+2. 运行命令行选项
+3. ./.gdbinit
+4. 通过-x选项给出的命令文件。
+
+## 命令定义
+
+利用define自定义命令，使用document给自定义命令添加说明。help+命令名 可以查看定义的命令。
+
+![image-20221021160315053](../typora-user-images/image-20221021160315053.png)
+
+还可以吧各种设置写在文件中，运行调试器时读取这些文件。
+
+格式
+
+source  文件名![image-20221021160729095](../typora-user-images/image-20221021160729095.png)
+
+![image-20221021160744145](../typora-user-images/image-20221021160744145.png)
+
+ 
