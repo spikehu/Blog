@@ -51,4 +51,8 @@ tags:
 
 
 
-- 选择车辆进行感染（选择4个角落的）node[4] node[2]  node[6]  node[7],不过得先解决ID问题，系统的ID太难用了，得根据出现得时间生成一个统一得ID
+- 选择车辆进行感染（选择4个角落的）node[4] node[2]  node[6]  node[7],不过得先解决ID问题，可以Nic Id进行识别定位
+- node[2] 的话就是nic id = CNA____NBNA_0
+- node[4] 对应 nic id = randUni834:1
+- node[6] 对应nic id = 0LUtoBE.0
+- node[7] 对应 nic id = randUni20481:1
