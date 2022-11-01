@@ -328,3 +328,711 @@ using 基类：：基类成员变量
 
 - virtual 返回值类型 函数名（参数列表）=0
 - 纯虚析构函数必须实现
+
+## 运行阶段类型识别 dynamic_cast
+
+用于将基类指针转换为派生类的指针，且只适用于多态，只用于包含虚函数的类。
+
+## typeid运算符和type_info运算符
+
+typeid用于获取数据类型的信息
+
+- 语法一：typeid(数据类型)
+- 语法二：typeid(变量名或表达式)
+
+编译器不同name()返回的字符串不一样，通常返回类名。不能用空指针，多态也不行，比如typeid(父类指针)==typeid(子类指针)
+
+## auto自动推导类型
+
+不算难
+
+## 函数模板的基本概念
+
+template<typename T>
+
+返回值类型  函数名（T 参数1，T 参数二...）；
+
+手工指定 函数名<参数类型>（参数1，2，3）
+
+C++98添加关键字typename之前，C++使用关键字class来创建模板
+
+建议函数模板用typename,类模板用class创建模板
+
+## 函数模板的基本概念
+
+函数模板如果指定数据类型，不会进行隐式类型转换。
+
+函数模板可以有多个参数。
+
+虚函数和析构函数不能使用函数模板
+
+函数模板支持重载，可以有多个通用数据类型的参数
+
+## 函数模板的具体化
+
+- 普通函数优先于模板函数
+- 具体模板函数优先普通模板函数
+- 如果要发生类型转换，不需要转换的更优先
+
+### 具体化
+
+template<> 函数声明或者定义
+
+## 函数模板分文件编写
+
+函数模板在头文件中，函数模板的具体化放在源文件中。
+
+#### 函数模板高级
+
+如果使用如下形式函数：
+
+~~~c++
+template <class T1,class T2>
+void func(T1 a , T2 b)
+//有如下代码
+    a+b
+    //如何得到a+b结果的类型
+~~~
+
+ 确定a+b的结果类型可以使用decltype,或者auto ，decltype的详细用法可以看书。
+
+如果有返回值，可以使用auto func()->delctype(表达式或者值),后置返回类型
+
+## 类模板
+
+类模板只能显示指定模板的类型。
+
+类模板可以为通用数据类型指定缺省的数据类型（C++11标准的函数模板也可以）
+
+可以在类外定义函数
+
+~~~
+template<class T1,class T2>
+T2 AA<T1,T2>::getb()
+~~~
+
+## 模板类的实例-栈
+
+~~~c++
+#include <iostream>
+
+
+//实现一个简单的栈
+using namespace  std;
+template<class dataType>
+class Stack
+{
+private:
+    int m_size;
+    dataType* m_item;
+    int m_top;
+public:
+    Stack(int size):m_size(size)
+    {
+        m_item   =  new dataType[size];
+        m_top    = -1;
+    }
+    //判断栈是否为空
+    bool empty()
+    {
+        return m_top == -1;
+    }
+    bool full()
+    {
+        return m_top== m_size -1;
+    }
+    //出栈
+    void    pop()
+    {
+        m_top--;
+    }
+    //入栈
+    void push(dataType item)
+    {
+        m_top++;
+        m_item[m_top]= item;
+    }
+    //返回栈顶元素
+    dataType top()
+    {
+        return m_item[m_top];
+    }
+    ~Stack()
+    {
+        delete[] m_item;
+        m_item = nullptr;
+    }
+
+
+};
+
+int main() {
+    Stack<string> stk(5);
+    stk.push("a");
+    stk.push("b");
+    stk.push("c");
+    stk.push("d");
+    stk.push("e");
+    while(!stk.empty())
+    {
+            cout<<stk.top()<<endl;
+            stk.pop();
+    }
+    return 0;
+}
+
+~~~
+
+可以先实现普通的类，然后再改成模板类
+
+## 模板类的示例--数组
+
+类模板可以有非通用类型参数：
+
+1. 通常是整型（C++20标准可以用其它）
+2. 实例化模板时必须用常量表达式
+3. 模板中不能修改参数的值
+
+```c++
+//实现一个简单的vector
+template<class  T>
+class Vector
+{
+public:
+    int m_size;
+    T* m_item;
+    int m_item_cnt;
+public:
+    Vector():m_size(0),m_item_cnt(0)
+    {
+
+    }
+    Vector(int size):m_size(size),m_item_cnt(0)
+    {
+        m_item  = new T[m_size];
+    }
+    void push_back(T item)
+    {
+        if(m_item_cnt == m_size)resize(m_size+5);
+        m_item[m_item_cnt] = item;
+        m_item_cnt++;
+    }
+
+    ~Vector()
+    {
+        delete[] m_item;
+        m_item  = nullptr;
+    }
+    int size()
+    {
+        return m_item_cnt;
+    }
+    T operator[](int index)
+    {
+        return m_item[index];
+    }
+
+private:
+    void resize(int size)
+    {
+        //重新开辟一块更大的空间，并把原来空间的值复制到新的空间
+        T*   p = new T[m_size + size];
+        for(int i = 0 ;i < m_item_cnt;i++)
+        {
+            p[i] = m_item[i];
+        }
+        delete[] m_item;
+        m_item = p;
+    }
+
+
+};
+```
+
+
+
+## 嵌套和递归使用模板类
+
+~~~C++
+#include <iostream>
+
+
+//实现一个简单的栈
+using namespace  std;
+template<class dataType>
+class Stack
+{
+private:
+    int m_size;
+    dataType* m_item;
+    int m_top;
+public:
+    Stack():m_size(2),m_top(-1)
+    {
+        m_item  = new dataType[m_size];
+    }
+    Stack(int size):m_size(size)
+    {
+        m_item   =  new dataType[size];
+        m_top    = -1;
+    }
+    //判断栈是否为空
+    bool empty()
+    {
+
+        return m_top == -1;
+    }
+    bool full()
+    {
+        return m_top== m_size -1;
+    }
+    //出栈
+    void    pop()
+    {
+        m_top--;
+    }
+    //入栈
+    void push(dataType item)
+    {
+        if(m_size==m_top+1)resize(4);
+        m_top++;
+        m_item[m_top]= item;
+    }
+    void resize(int size)
+    {
+          dataType* p = new dataType[m_size+size];
+          m_size  +=size;
+          for(int i =0;i <= m_top;i++ )
+          {
+              p[i] = m_item[i];
+          }
+          delete[] m_item;
+          m_item = p;
+    }
+    //返回栈顶元素
+    dataType top()
+    {
+        return m_item[m_top];
+    }
+    ~Stack()
+    {
+        delete[] m_item;
+        m_item = nullptr;
+    }
+
+    //这里需要重载深拷贝
+    Stack& operator=(const Stack& it)
+    {
+                delete[] m_item;
+                m_top = it.m_top;
+                m_size = it.m_size;
+                m_item  = new dataType[m_size];
+                //复制
+                for(int i =0 ;i<m_size;i++)m_item[i] = it.m_item[i];
+                return *this;
+    }
+};
+
+
+//实现一个简单的vector
+template<class  T>
+class Vector
+{
+public:
+    int m_size;
+    T* m_item;
+    int m_item_cnt;
+public:
+    Vector():m_size(0),m_item_cnt(0)
+    {
+        m_item = nullptr;
+    }
+    Vector(int size):m_size(size),m_item_cnt(0)
+    {
+        m_item  = new T[m_size];
+    }
+    void push_back(const T& item)
+    {
+        if(m_item_cnt == m_size)resize(m_size+5);
+        m_item[m_item_cnt] = item;
+        m_item_cnt++;
+    }
+
+    ~Vector()
+    {
+        delete[] m_item;
+        m_item  = nullptr;
+    }
+    int size()
+    {
+        return m_item_cnt;
+    }
+    T& operator[](int index)
+    {
+        return m_item[index];
+    }
+
+private:
+    void resize(int size)
+    {
+        //重新开辟一块更大的空间，并把原来空间的值复制到新的空间
+        T*   p = new T[m_size + size];
+        m_size  +=size;
+        for(int i = 0 ;i < m_item_cnt;i++)
+        {
+            p[i] = m_item[i];
+        }
+        if(m_item!= nullptr)
+        delete[] m_item;
+        m_item = p;
+    }
+};
+int main() {
+    //嵌套使用
+    Vector<Stack<int>> vs;
+    Stack<int> stk1;
+    stk1.push(0);
+    stk1.push(1);
+    stk1.push(2);
+    stk1.push(2);
+    stk1.push(3);
+    stk1.push(4);
+
+    Stack<int> stk2;
+    stk2.push(2);
+    stk2.push(3);
+    stk2.push(4);
+    stk2.push(0);
+    stk2.push(1);
+    stk2.push(2);
+
+    vs.push_back(stk1);
+    vs.push_back(stk2);
+
+    for(int i=0;i<vs.size();i++)
+    {
+        while(!vs[i].empty())
+        {
+            cout<<vs[i].top()<<" ";
+            vs[i].pop();
+        }
+        cout<<endl;
+    }
+    return 0;
+}
+
+~~~
+
+拷贝构造这里还是要注意一下，如果是类的话。
+
+还是就是操作符重载，返回的到底是什么的注意。
+
+## 类模板具体化
+
+类似函数模板具体化，不过多了一个部分具体化。
+
+~~~C++
+template<class T1,class T2>
+class AA
+{
+    ....
+}
+//完全具体化
+template<>
+class AA<string ,int>
+{
+    ....
+}
+//部分具体化
+template<class T>
+class AA<T,string>
+{
+    ....
+}
+
+~~~
+
+~~~C++
+#include <iostream>
+//模板类具体化实现
+#include <string>
+using namespace  std;
+template<class T1,class T2>
+class AA
+{
+public:
+    T1 a;
+    T2 b;
+    void func()
+    {
+        cout<<"模板类AA<T1,T2>"<<endl;
+    }
+
+};
+//模板类具体化实现
+template<> class AA<string ,int>
+{
+public:
+    string a;
+    int b;
+    void func()
+    {
+        cout<<"模板类AA<string,int> 具体化实现"<<endl;
+    }
+};
+//模板类半具体化实现
+template<class T>
+class AA<T,int>
+{
+public:
+    T a;
+    int b;
+    void func()
+    {
+        cout<<"模板类部分具体化AA<T,int>"<<endl;
+    }
+};
+int main() {
+    AA<char ,char> a1;
+    AA<string ,int> a2;
+    AA<char ,int> a3;
+
+    a1.func();
+    a2.func();
+    a3.func();
+    return 0;
+}
+
+~~~
+
+
+
+## 模板类与继承
+
+1. 模板类继承普通类（常见）
+
+~~~C++
+#include <iostream>
+//模板类继承普通类
+#include <string>
+using namespace  std;
+class  B
+{
+public:
+    void func1()
+    {
+        cout<<"普通类B"<<endl;
+    }
+
+};
+template<class T>
+class A :public B
+{
+public:
+    T a;
+    void func()
+    {
+        cout<<"模板类A<T>"<<endl;
+    }
+};
+
+
+
+int main() {
+    A<int> a;
+    a.func1();
+    a.func();
+    return 0;
+}
+
+~~~
+
+
+
+1. 普通类继承模板类的实例化版本
+
+~~~C++
+#include <iostream>
+//模板类继承普通类
+#include <string>
+using namespace  std;
+
+template<class T>
+class A
+{
+public:
+    T a;
+    void func()
+    {
+        cout<<"模板类A<T>"<<endl;
+    }
+};
+class  B:public A<int>
+{
+public:
+    void func1()
+    {
+        cout<<"普通类B"<<endl;
+    }
+
+};
+
+
+
+int main() {
+    B b;
+    b.func1();
+    b.func();
+    return 0;
+}
+
+~~~
+
+
+
+1. 普通类继承模板类（常见）,此时普通类变成了模板类
+
+~~~C++
+#include <iostream>
+//模板类继承普通类
+#include <string>
+using namespace  std;
+
+template<class T>
+class A
+{
+public:
+    T a;
+    void func()
+    {
+        cout<<"模板类A<T>"<<endl;
+    }
+};
+template<class T>
+class  B:public A<T>
+{
+public:
+    void func1()
+    {
+        cout<<"普通类B"<<endl;
+    }
+
+};
+
+
+
+int main() {
+    B<int> b;
+    b.func1();
+    b.func();
+    return 0;
+}
+
+~~~
+
+
+
+1. 模板类继承模板类
+
+~~~C++
+#include <iostream>
+//模板类继承普通类
+#include <string>
+using namespace  std;
+
+template<class T>
+class A
+{
+public:
+    T a;
+    void func()
+    {
+        cout<<"模板类A<T>"<<endl;
+    }
+};
+template<class T,class T2>
+class  B:public A<T2>
+{
+public:
+    T a;
+    void func1()
+    {
+        cout<<"普通类B"<<endl;
+    }
+
+};
+
+
+
+int main() {
+    B<int,int> b;
+    b.func1();
+    b.func();
+    return 0;
+}
+
+~~~
+
+
+
+1. 模板类继承模板参数给出的基类（不能是模板类）
+
+~~~C++
+#include <iostream>
+//模板类继承普通类
+#include <string>
+using namespace  std;
+
+template<class T>
+class A
+{
+public:
+    T a;
+    void func()
+    {
+        cout<<"模板类A<T>"<<endl;
+    }
+};
+template<class T,class  T2>
+class  B:public T2
+{
+public:
+    T a;
+    B():T2(){}
+    void func1()
+    {
+        cout<<"模板类B"<<endl;
+    }
+
+};
+
+
+
+int main() {
+    B<int,A<int>> b;
+    b.func1();
+    b.func();
+    return 0;
+}
+
+~~~
+
+
+
+## 类模板-模板类与函数
+
+~~~C++
+template<typename T>
+T func(T& a)
+{
+    ...
+}
+~~~
+
+## 模板类与友元
+
+- 非模板友元：需要在类中实现
+- 约束模板友元：在模板类的定义前面声明友元函数模板，然后再模板类中，再次声明友元函数模板
+- 非模板约束的友元函数，实例化后，每个函数都是每个类的右元
+
+## 模板类的成员模板
